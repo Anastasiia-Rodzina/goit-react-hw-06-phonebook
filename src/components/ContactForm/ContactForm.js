@@ -1,7 +1,14 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import css from './ContactForm.module.css';
+import { addContact } from '../../redux/contactList/list-slice';
+import { getFilteredContacts } from '../../redux/contactList/list-selectors';
 
-const ContactForm = ({ onSubmit }) => {
+const ContactForm = () => {
+  const contacts = useSelector(getFilteredContacts);
+
+  const dispatch = useDispatch();
+
   const [state, setState] = useState({
     name: '',
     number: '',
@@ -17,8 +24,18 @@ const ContactForm = ({ onSubmit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-
-    onSubmit({ ...state });
+    if (
+      contacts.some(
+        contact =>
+          contact.name.toLowerCase() === name.toLowerCase() ||
+          contact.number === number
+      )
+    ) {
+      alert(`${name} or ${number} is already in contacts.`);
+      return state;
+    }
+    const action = addContact({ name, number });
+    dispatch(action);
     setState({
       name: '',
       number: '',
